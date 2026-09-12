@@ -1,14 +1,40 @@
 ---
 feature: workflow-runner
-status: in-progress
+status: delivered
 updated: 2026-09-12
 branch: feat/workflows
-commits:
+commits: 04a98d3..b1cc7a8
 ---
 
 # Workflow Runner
 
 ## Report
+
+**What was built** - A single-file OpenCode V2 plugin that runs deterministic
+multi-agent workflows. It registers a `workflow` command and ships deep-research
+with the phases brief, plan, research, reflect, write, and review. Each phase
+creates one child session, or fans out to several in parallel and joins their
+replies. Every phase writes an artifact under the data dir, and the run stores
+its task so a resume can continue. Child sessions inherit the invoking session's
+model, and `WORKFLOW_MODEL` overrides it.
+
+**Verification** - `bun test`: 21 pass, 0 fail, 48 assertions. Live post-fix run
+on the DeepSeek platform: deep-research produced `00-task.txt` plus the six
+artifacts and returned the run id and artifact path. An earlier live run exposed
+a context-truncation bug, fixed and re-verified. Three review rounds covered two
+blocking items, one partially resolved follow-up, and several lows; all are
+resolved.
+
+**Journey log**
+
+1. The first live run showed the reflection never reached the write phase,
+   because `context()` truncated by key order. Each key now gets a share, and the
+   task is capped.
+2. A blank child reply was written as a successful artifact, and a zero-byte
+   artifact then passed resume. Blank replies now fail the phase, in the single
+   and fan-out paths alike.
+3. A taskless resume sent an empty task. The first run stores the task, and a
+   resume reads it back or fails clearly.
 
 ## [S1] Problem
 
