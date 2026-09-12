@@ -72,17 +72,17 @@ Fact-check is a follow-up delivery.
 
 ## Tasks
 
-- [ ] T1: runner core with ordered phases, parallel fan-out, a join, and
+- [x] T1: runner core with ordered phases, parallel fan-out, a join, and
       `ctx.session.wait` - acceptance: a fake-context test runs a two-phase
       workflow with one fan-out and asserts the phase order and the joined
       result (covers: S2)
-- [ ] T2: artifact directory and resume support - acceptance: a test writes an
+- [x] T2: artifact directory and resume support - acceptance: a test writes an
       artifact per phase and a re-run resumes from the last completed phase
       (covers: S2; depends: T1)
-- [ ] T3: bounded retries and a clear failure report - acceptance: a test forces
+- [x] T3: bounded retries and a clear failure report - acceptance: a test forces
       a phase to fail twice and confirms the run stops with a report (covers:
       S2; depends: T1)
-- [ ] T4: the deep-research workflow - acceptance: a fake-context run reaches
+- [x] T4: the deep-research workflow - acceptance: a fake-context run reaches
       the write phase and produces one report file (covers: S2; depends: T2)
-- [ ] T5: README, NOTICE, and tests for deep-research - acceptance: files exist,
+- [x] T5: README, NOTICE, and tests for deep-research - acceptance: files exist,
       tests pass (covers: S2; depends: T4)
