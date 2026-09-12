@@ -219,6 +219,7 @@ async function runPhase(
       } else {
         text = await runChild(ctx, phase.agent, model, phase.prompt(task, results, 0))
       }
+      if (!text.trim()) throw new Error("empty reply from child")
       await Bun.write(`${runDir}/${artifactName(index, phase.name)}`, text)
       return text
     } catch (error) {
@@ -243,18 +244,34 @@ async function runWorkflow(
   const results: Results = {}
   const model = await resolveModel(ctx, sessionID)
 
+  // Persist the task on the first run so a later resume can omit it.
+  const taskFile = `${runDir}/00-task.txt`
+  if (resume && !task.trim()) {
+    const stored = Bun.file(taskFile)
+    if (await stored.exists()) task = (await stored.text()).trim()
+  } else {
+    await Bun.write(taskFile, task)
+  }
+
   for (const [index, phase] of workflow.phases.entries()) {
     const file = `${runDir}/${artifactName(index, phase.name)}`
-    const existing = Bun.file(file)
-    if (resume && (await existing.exists())) {
-      results[phase.name] = await existing.text()
-      continue
+    if (resume) {
+      const handle = Bun.file(file)
+      const existing = (await handle.exists()) ? (await handle.text()).trim() : ""
+      if (existing) {
+        results[phase.name] = existing
+        continue
+      }
     }
-    results[phase.name] = await runPhase(ctx, runDir, phase, task, results, index, model)
+    try {
+      results[phase.name] = await runPhase(ctx, runDir, phase, task, results, index, model)
+    } catch (error) {
+      throw new Error(`${error} (run ${runID}, artifacts ${runDir})`)
+    }
   }
 
   const last = workflow.phases[workflow.phases.length - 1]
-  return { runID, runDir, report: results[last?.name ?? ""] ?? "" }
+  return { runID, runDir, report: results["write"] ?? results[last?.name ?? ""] ?? "" }
 }
 
 function parseRun(text: string): { name: string; task: string; resume?: string } {

@@ -152,6 +152,16 @@ describe("runPhase", () => {
     expect(created).toHaveLength(2)
   })
 
+  test("fails on an empty reply and writes nothing", async () => {
+    const dir = root()
+    process.env.WORKFLOW_RETRIES = "0"
+    const { ctx, created } = makeCtx({ reply: () => "   " })
+    const phase = { name: "brief", prompt: () => "do it" }
+    await expect(runPhase(ctx, dir, phase, "task", {}, 0)).rejects.toThrow(/empty reply/)
+    expect(existsSync(join(dir, "01-brief.md"))).toBe(false)
+    expect(created).toHaveLength(1)
+  })
+
   test("succeeds on the second attempt", async () => {
     const dir = root()
     process.env.WORKFLOW_RETRIES = "1"
@@ -198,6 +208,18 @@ describe("runWorkflow", () => {
     const resumed = await runWorkflow(second.ctx, "deep-research", "task", started.runID)
     expect(resumed.runID).toBe(started.runID)
     expect(second.created).toHaveLength(3)
+  })
+
+  test("resumes without a task by reading the stored task", async () => {
+    root()
+    const first = makeCtx({ reply: () => "phase one" })
+    const started = await runWorkflow(first.ctx, "deep-research", "my stored task")
+    for (const name of ["04-reflect.md", "05-write.md", "06-review.md"]) unlinkSync(join(started.runDir, name))
+    const second = makeCtx({ reply: () => "phase two" })
+    const resumed = await runWorkflow(second.ctx, "deep-research", "", started.runID)
+    expect(second.created).toHaveLength(3)
+    expect(second.prompts.some((entry: any) => entry.text.includes("my stored task"))).toBe(true)
+    expect(resumed.report).toContain("phase two")
   })
 })
 

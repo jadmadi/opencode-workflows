@@ -1,8 +1,8 @@
 ---
 feature: workflow-runner
-status: designed
+status: in-progress
 updated: 2026-09-12
-branch:
+branch: feat/workflows
 commits:
 ---
 

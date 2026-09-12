@@ -23,6 +23,10 @@ For one project, put it in `.opencode/plugins/`. Tested against OpenCode
 | -------------------------------- | --------------------------------------- |
 | `/workflow` or `/workflow list`  | List the built-in workflows             |
 | `/workflow run <name> <task>`    | Run a workflow for the task             |
+| `/workflow run <name> <task> --resume=<runID>` | Resume an unfinished run   |
+
+A resume may omit the task. The run directory stores it in `00-task.txt`, and a
+taskless resume reads it back.
 
 First built-in: `deep-research`, with the phases brief, plan, research, reflect,
 write, and review. It produces one Markdown report. `fact-check` is a follow-up.
@@ -35,7 +39,9 @@ write, and review. It produces one Markdown report. `fact-check` is a follow-up.
 - A fan-out phase runs several children in parallel, bounded by
   `WORKFLOW_CONCURRENCY` (default 3), and joins their replies.
 - A failed phase retries up to `WORKFLOW_RETRIES` (default 2) before the run
-  stops and reports.
+  stops and reports. An empty reply from a child counts as a failure.
+- Child sessions use the invoking session's model. `WORKFLOW_MODEL` overrides
+  it with a `provider/model` ref.
 - Artifacts go under `<data dir>/opencode/workflows/<runID>/`. `WORKFLOW_ROOT`
   overrides the parent.
 
