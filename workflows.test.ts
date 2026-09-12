@@ -70,7 +70,7 @@ describe("registry", () => {
   test("includes every context key even when outputs are long", () => {
     const results = { brief: "B".repeat(5000), research: "R".repeat(5000), reflect: "F".repeat(5000) }
     const write = DEEP_RESEARCH.phases.find((phase) => phase.name === "write")
-    const prompt = write!.prompt("task", results, 0)
+    const prompt = write!.prompt("x".repeat(50000), results, 0)
     expect(prompt).toContain("## brief")
     expect(prompt).toContain("## research")
     expect(prompt).toContain("## reflect")

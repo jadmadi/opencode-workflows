@@ -251,7 +251,7 @@ async function runWorkflow(
   if (resume && !task.trim()) {
     const stored = Bun.file(taskFile)
     if (await stored.exists()) task = (await stored.text()).trim()
-    if (!task.trim()) throw new Error(`cannot resume run ${runID} without a task: ${taskFile} is missing`)
+    if (!task.trim()) throw new Error(`cannot resume run ${runID} without a task: the run has no stored task`)
   } else {
     await Bun.write(taskFile, task)
   }
