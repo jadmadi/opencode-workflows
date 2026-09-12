@@ -162,6 +162,15 @@ describe("runPhase", () => {
     expect(created).toHaveLength(1)
   })
 
+  test("fails when a fan-out child returns nothing", async () => {
+    const dir = root()
+    process.env.WORKFLOW_RETRIES = "0"
+    const { ctx } = makeCtx({ reply: () => "   " })
+    const phase = { name: "research", fanOut: 3, prompt: () => "do it" }
+    await expect(runPhase(ctx, dir, phase, "task", {}, 2)).rejects.toThrow(/empty reply/)
+    expect(existsSync(join(dir, "03-research.md"))).toBe(false)
+  })
+
   test("succeeds on the second attempt", async () => {
     const dir = root()
     process.env.WORKFLOW_RETRIES = "1"
@@ -208,6 +217,12 @@ describe("runWorkflow", () => {
     const resumed = await runWorkflow(second.ctx, "deep-research", "task", started.runID)
     expect(resumed.runID).toBe(started.runID)
     expect(second.created).toHaveLength(3)
+  })
+
+  test("rejects a taskless resume when the stored task is missing", async () => {
+    root()
+    const { ctx } = makeCtx()
+    await expect(runWorkflow(ctx, "deep-research", "", "missing-run")).rejects.toThrow(/without a task/)
   })
 
   test("resumes without a task by reading the stored task", async () => {

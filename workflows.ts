@@ -56,7 +56,8 @@ async function resolveModel(ctx: any, sessionID: string | undefined): Promise<{ 
 
 function context(task: string, results: Results, keys: string[]): string {
   const budget = 8000
-  const share = keys.length ? Math.max(600, Math.floor((budget - task.length) / keys.length)) : budget
+  const taskText = task.slice(0, 2000)
+  const share = keys.length ? Math.max(600, Math.floor((budget - taskText.length) / keys.length)) : budget
   const blocks = keys
     .map((key) => {
       const value = results[key]
@@ -64,7 +65,7 @@ function context(task: string, results: Results, keys: string[]): string {
     })
     .filter(Boolean)
     .join("\n\n")
-  return [`Task: ${task}`, blocks].filter(Boolean).join("\n\n").slice(0, budget)
+  return [`Task: ${taskText}`, blocks].filter(Boolean).join("\n\n")
 }
 
 const DEEP_RESEARCH: Workflow = {
@@ -215,6 +216,7 @@ async function runPhase(
         const replies = await mapLimit(phase.fanOut, concurrency(), (i) =>
           runChild(ctx, phase.agent, model, phase.prompt(task, results, i)),
         )
+        if (replies.some((reply) => !reply.trim())) throw new Error("empty reply from child")
         text = replies.join("\n\n---\n\n")
       } else {
         text = await runChild(ctx, phase.agent, model, phase.prompt(task, results, 0))
@@ -249,6 +251,7 @@ async function runWorkflow(
   if (resume && !task.trim()) {
     const stored = Bun.file(taskFile)
     if (await stored.exists()) task = (await stored.text()).trim()
+    if (!task.trim()) throw new Error(`cannot resume run ${runID} without a task: ${taskFile} is missing`)
   } else {
     await Bun.write(taskFile, task)
   }
