@@ -44,7 +44,9 @@ grep workflows ~/.local/share/opencode/log/opencode.log | tail
 - `listWorkflows`, `findWorkflow` - the registry, exported for tests.
 - `runPhase`, `runWorkflow` - the runner, exported for tests.
 - `replyText` - reads the last assistant text from a child session.
-- `setup` - registers the `workflow` command.
+- `setup` on the plugin object - registers the `workflow` command.
+- A run writes `00-task.txt` plus one artifact per phase, so a resume can skip
+  completed phases and recover a missing task.
 - `workflows.test.ts` - tests with a fake session API.
 
 ## Releasing
