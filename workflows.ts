@@ -8,6 +8,8 @@
 // The runtime does not resolve @opencode/plugin, so this file exports a plain
 // { id, setup } object and uses Bun globals for file access.
 
+const VERSION = "0.1.0"
+
 type Results = Record<string, string>
 
 interface Phase {
@@ -301,7 +303,7 @@ const plugin = {
         execute: async ({ sessionID, prompt }: any) => {
           const text = typeof prompt?.text === "string" ? prompt.text.trim() : ""
           if (!text || text.toLowerCase() === "list") {
-            throw new Error(`Workflows: ${listWorkflows().join(", ")}`)
+            throw new Error(`Workflows: ${listWorkflows().join(", ")}\nworkflows ${VERSION}`)
           }
           if (!text.startsWith("run ")) {
             throw new Error("use /workflow run <name> <task>, or /workflow list")
@@ -316,5 +318,5 @@ const plugin = {
   },
 }
 
-export { DEEP_RESEARCH, findWorkflow, listWorkflows, mapLimit, parseRun, replyText, runPhase, runWorkflow }
+export { DEEP_RESEARCH, findWorkflow, listWorkflows, mapLimit, parseRun, replyText, runPhase, runWorkflow, VERSION }
 export default plugin

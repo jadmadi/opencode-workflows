@@ -11,6 +11,7 @@ import plugin, {
   replyText,
   runPhase,
   runWorkflow,
+  VERSION,
 } from "./workflows.ts"
 
 const tempDirs: string[] = []
@@ -253,5 +254,12 @@ describe("setup", () => {
     await expect(run("list")).rejects.toThrow(/deep-research/)
     await expect(run("run deep-research")).rejects.toThrow(/use \/workflow run/)
     await expect(run("what")).rejects.toThrow(/use \/workflow run/)
+  })
+})
+
+describe("version", () => {
+  test("VERSION matches package.json", async () => {
+    const pkg = (await Bun.file(new URL("./package.json", import.meta.url)).json()) as { version: string }
+    expect(VERSION).toBe(pkg.version)
   })
 })
