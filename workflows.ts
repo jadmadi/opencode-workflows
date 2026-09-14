@@ -8,7 +8,7 @@
 // The runtime does not resolve @opencode/plugin, so this file exports a plain
 // { id, setup } object and uses Bun globals for file access.
 
-const VERSION = "0.1.0"
+const VERSION = "0.1.1"
 
 type Results = Record<string, string>
 
