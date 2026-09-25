@@ -6,7 +6,7 @@ Guidance for agents working in this repository.
 
 An OpenCode V2 plugin (`workflows.ts`) that runs deterministic multi-agent
 workflows. It registers a `workflow` command and ships the deep-research
-workflow. No build step, no dependencies, MIT.
+workflow. No build step, no dependencies, AGPL-3.0-only.
 
 ## Local development
 
