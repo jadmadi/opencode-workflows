@@ -1,6 +1,7 @@
 {
   "name": "opencode-workflows",
   "version": "2026.9.0",
+  "builtUnder": "2.0.16",
   "description": "OpenCode V2 plugin that runs deterministic multi-agent workflows",
   "type": "module",
   "license": "MIT",
