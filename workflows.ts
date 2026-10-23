@@ -5,10 +5,12 @@
 // parallel and joins their replies. Each phase writes an artifact under the
 // data dir, so a run is auditable and resumable.
 //
-// The runtime does not resolve @opencode/plugin, so this file exports a plain
-// { id, setup } object and uses Bun globals for file access.
+// The host provides @opencode/plugin at runtime, so this file uses
+// Plugin.define and Bun globals for file access.
 
-const VERSION = "2026.9.0"
+import { Plugin } from "@opencode/plugin"
+
+const VERSION = "2026.10.0"
 
 type Results = Record<string, string>
 
@@ -293,7 +295,7 @@ function parseRun(text: string): { name: string; task: string; resume?: string }
   return { name, task, resume }
 }
 
-const plugin = {
+const plugin = Plugin.define({
   id: "workflows",
   async setup(ctx: any) {
     await ctx.command.transform((editor: any) => {
@@ -316,7 +318,7 @@ const plugin = {
       })
     })
   },
-}
+})
 
 export { DEEP_RESEARCH, findWorkflow, listWorkflows, mapLimit, parseRun, replyText, runPhase, runWorkflow, VERSION }
 export default plugin
